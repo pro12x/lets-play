@@ -118,13 +118,13 @@ http://localhost:8080/swagger-ui.html
 | DELETE | `/api/users/{id}`    | Delete a user by ID                        | Yes           |
 
 ### Product Endpoints
-| METHOD | ENDPOINT             | DESCRIPTION                                | AUTH REQUIRED |
-|--------|----------------------|--------------------------------------------|---------------|
-| GET    | `/api/products`      | Get all products                           | No            |
-| GET    | `/api/products/{id}` | Get a product by ID                        | No            |
-| POST   | `/api/products`      | Create a new product                       | Yes           |
-| PUT    | `/api/products/{id}` | Update a product by ID                     | Yes           |
-| DELETE | `/api/products/{id}` | Delete a product by ID                     | Yes           |
+| METHOD | ENDPOINT             | DESCRIPTION            | AUTH REQUIRED |
+|--------|----------------------|------------------------|---------------|
+| GET    | `/api/products`      | Get all products       | No            |
+| GET    | `/api/products/{id}` | Get a product by ID    | Yes           |
+| POST   | `/api/products`      | Create a new product   | Yes           |
+| PUT    | `/api/products/{id}` | Update a product by ID | Yes           |
+| DELETE | `/api/products/{id}` | Delete a product by ID | Yes           |
 
 ## Authentication and Authorization
 ### Token-based Authentication
