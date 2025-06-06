@@ -9,6 +9,7 @@ import com.cgl.lets_play.repository.ProductRepository;
 import com.cgl.lets_play.repository.UserRepository;
 import com.cgl.lets_play.service.IProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,10 +19,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
+// @RequiredArgsConstructor
 public class ProductService implements IProductService {
-    private final ProductRepository productRepository;
-    private final UserRepository userRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+    //private final ProductRepository productRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+    //private final UserRepository userRepository;
 
     @Override
     public List<ProductDto> getAllProducts() {
