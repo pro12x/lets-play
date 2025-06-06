@@ -12,6 +12,7 @@
 10. **[Bonus Features](#bonus-features)**
 11. **[Credit](#credit)**
 12. **[License](#license)**
+13. **[Annex](#annex)**
 
 ## Objectives
 This project aims to develop a **CRUD (Create, Update, Read, Delete) API** using **Spring Boot** and **MongoDB**. The application provides user management and product management functionalities while adhering to RESTful principes. It also includes token-based authentication, rol-based access control, and robust security measures.
@@ -71,20 +72,25 @@ This project aims to develop a **CRUD (Create, Update, Read, Delete) API** using
     cd lets-play
     ```
 
-### Step 2: Configure MongoDB
+### Step 2: Configure Environment Variables
+1. Duplicate the `.env.example` file and rename it to `.env`.
+2. Update the `.env` file with your variable values:
+
+### Step 3: Configure MongoDB
 1. Install and Start MongoDB on your machine or use a cloud instance (e.g., MongoDB Atlas).
 2. Update the MongoDB connection URI in `application.properties` or `application.yml` file:
     ```properties
     spring.data.mongodb.uri=mongodb://localhost:27017/mydb
     ```
-### Step 3: Build the Project
+
+### Step 4: Build the Project
 1. Ensure you have Maven installed and configured.
 2. Open a terminal in the project root directory.
 3. Run the following command to build the project:
     ```bash
     mvn clean install
     ```
-### Step 4: Run the Application
+### Step 5: Run the Application
 1. Start the application using Maven:
     ```bash
     mvn spring-boot:run
@@ -95,7 +101,7 @@ This project aims to develop a **CRUD (Create, Update, Read, Delete) API** using
     ```
 3. Open your web browser and navigate to `http://localhost:8080` to access the API.
 
-### Step 5: Access Swagger UI
+### Step 6: Access Swagger UI
 To view the API documentation and test endpoints interactively, open:
 ```plaintext
 http://localhost:8080/swagger-ui.html
@@ -185,3 +191,11 @@ This project was developed by **[Franchis Janel MOKOMBA](https://github.com/pro1
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Annex
+### Generate the SSL Certificate
+1. To generate a self-signed SSL certificate for local development, you can use the following command:
+    ```bash
+    keytool -genkeypair -alias lets-play -keyalg RSA -keystore keystore.p12 -storetype PKCS12 -storepass yourpassword -validity 365
+    ```
+2. Move the generated `keystore.p12` file to the `src/main/resources` directory of your project.
