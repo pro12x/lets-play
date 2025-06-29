@@ -4,10 +4,10 @@ FROM eclipse-temurin:17-jdk-jammy AS build
 # Installer Maven manuellement
 RUN apt-get update && \
     apt-get install -y wget && \
-    wget https://dlcdn.apache.org/maven/maven-3/3.8.6/binaries/apache-maven-3.8.6-bin.tar.gz  -O /tmp/maven.tar.gz && \
+    wget https://dlcdn.apache.org/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz  -O /tmp/maven.tar.gz && \
     mkdir -p /opt/maven && \
     tar -xzf /tmp/maven.tar.gz -C /opt/maven && \
-    ln -s /opt/maven/apache-maven-3.8.6 /opt/maven/maven && \
+    ln -s /opt/maven/apache-maven-3.9.9 /opt/maven/maven && \
     rm /tmp/maven.tar.gz
 
 ENV MAVEN_HOME=/opt/maven/maven
