@@ -40,11 +40,11 @@ RUN chown -R appuser:appuser /app
 USER appuser
 
 # Variables d'environnement pour Render
-ENV SERVER_PORT=${PORT:-1111}
+ENV PORT=${SERVER_PORT:-1111}
 ENV SPRING_PROFILES_ACTIVE=prod
 
 # Exposition du port
-EXPOSE ${PORT:-1111}
+EXPOSE ${SERVER_PORT:-1111}
 
 # Point d'entrée
-ENTRYPOINT ["java", "-jar", "-Dserver.port=${SERVER_PORT}", "app.jar"]
+ENTRYPOINT ["java", "-jar", "-Dserver.port=${PORT}", "app.jar"]
