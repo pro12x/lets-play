@@ -3,8 +3,6 @@ spring:
     import: optional:file:./.env[.properties]
   application:
     name: ${APP_NAME}
-  profiles:
-    active: prod
 
   web:
     resources:
