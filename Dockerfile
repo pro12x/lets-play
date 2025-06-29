@@ -1,35 +1,50 @@
-# Étape 1 : Build avec JDK 17 et Maven
-FROM eclipse-temurin:17-jdk-jammy AS build
+# Dockerfile multi-stage pour Spring Boot avec Java 17
+FROM eclipse-temurin:17-jdk-alpine AS builder
 
-# Installer Maven manuellement
-RUN apt-get update && \
-    apt-get install -y wget && \
-    wget https://dlcdn.apache.org/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz  -O /tmp/maven.tar.gz && \
-    mkdir -p /opt/maven && \
-    tar -xzf /tmp/maven.tar.gz -C /opt/maven && \
-    ln -s /opt/maven/apache-maven-3.9.9 /opt/maven/maven && \
-    rm /tmp/maven.tar.gz
+# Installation de Maven
+RUN apk add --no-cache maven
 
-ENV MAVEN_HOME=/opt/maven/maven
-ENV PATH=$MAVEN_HOME/bin:$PATH
-
+# Définition du répertoire de travail
 WORKDIR /app
-COPY . .
-RUN mvn clean package
 
-# Étape 2 : Runtime avec JRE léger
-FROM eclipse-temurin:17-jre-focal
+# Copie des fichiers de configuration Maven
+COPY pom.xml .
+COPY mvnw .
+COPY .mvn .mvn
 
-# Créer un utilisateur non root pour la sécurité
-RUN adduser --disabled-login appuser
+# Téléchargement des dépendances (mise en cache)
+RUN mvn dependency:go-offline -B
+
+# Copie du code source
+COPY src ./src
+
+# Construction de l'application
+RUN mvn clean package -DskipTests
+
+# Stage de production
+FROM eclipse-temurin:17-jre-alpine
+
+# Création d'un utilisateur non-root pour la sécurité
+RUN addgroup -g 1001 -S appuser && adduser -u 1001 -S appuser -G appuser
+
+# Répertoire de travail
+WORKDIR /app
+
+# Copie du JAR depuis le stage de build
+COPY --from=builder /app/target/*.jar app.jar
+
+# Changement de propriétaire des fichiers
+RUN chown -R appuser:appuser /app
+
+# Passage à l'utilisateur non-root
 USER appuser
-WORKDIR /home/appuser/app
 
-# Copier le JAR depuis l'étape de build
-COPY --from=build /app/target/*.jar app.jar
+# Variables d'environnement pour Render
+ENV SERVER_PORT=${PORT:-1111}
+ENV SPRING_PROFILES_ACTIVE=prod
 
-# Exposer le port HTTP standard de Spring Boot
-EXPOSE 8080
+# Exposition du port
+EXPOSE ${PORT:-1111}
 
-# Lancer l'application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Point d'entrée
+ENTRYPOINT ["java", "-jar", "-Dserver.port=${SERVER_PORT}", "app.jar"]

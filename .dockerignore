@@ -1,0 +1,39 @@
+# Fichiers et dossiers à ignorer lors du build Docker
+
+# Dossiers de build
+target/
+build/
+
+# Fichiers IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Fichiers de système
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Fichiers temporaires
+*.tmp
+*.temp
+
+# Documentation
+README.md
+docs/
+
+# Fichiers Git
+.git/
+.gitignore
+
+# Fichiers Docker
+Dockerfile
+.dockerignore
+
+# Fichiers de test
+src/test/
