@@ -47,6 +47,10 @@ public class ProductService implements IProductService {
 
     @Override
     public List<ProductDto> getProductsByUserId(String userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User not found with id: " + userId);
+        }
+
         return productRepository.findByUserId(userId).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
@@ -76,9 +80,9 @@ public class ProductService implements IProductService {
 
         checkAuthorization(existingProduct);
 
-        existingProduct.setName(productDto.getName());
-        existingProduct.setDescription(productDto.getDescription());
-        existingProduct.setPrice(productDto.getPrice());
+        existingProduct.setName(productDto.getName() != null ? productDto.getName() : existingProduct.getName());
+        existingProduct.setDescription(productDto.getDescription() != null ? productDto.getDescription() : existingProduct.getDescription());
+        existingProduct.setPrice(productDto.getPrice() != null ? productDto.getPrice() : existingProduct.getPrice());
 
         Product updatedProduct = productRepository.save(existingProduct);
         return convertToDto(updatedProduct);

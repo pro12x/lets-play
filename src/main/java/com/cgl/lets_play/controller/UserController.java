@@ -1,5 +1,6 @@
 package com.cgl.lets_play.controller;
 
+import com.cgl.lets_play.dto.ChangePasswordRequest;
 import com.cgl.lets_play.dto.UserDto;
 import com.cgl.lets_play.service.impl.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -69,5 +70,17 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/change-password")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Change user password", description = "Change user password")
+    @ApiResponse(responseCode = "200", description = "Password changed successfully")
+    public ResponseEntity<Void> changePassword(
+            @PathVariable String id,
+            @RequestBody ChangePasswordRequest request) {
+
+        userService.changePassword(id, request.getOldPassword(), request.getNewPassword());
+        return ResponseEntity.ok().build();
     }
 }

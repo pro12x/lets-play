@@ -34,3 +34,5 @@ src/**/*.jks
 
 ### VS Code ###
 .vscode
+
+git_automation.sh

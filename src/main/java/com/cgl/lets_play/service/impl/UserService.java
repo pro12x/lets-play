@@ -2,12 +2,13 @@ package com.cgl.lets_play.service.impl;
 
 import com.cgl.lets_play.dto.UserDto;
 import com.cgl.lets_play.exception.ResourceNotFoundException;
+import com.cgl.lets_play.exception.UnauthorizedException;
 import com.cgl.lets_play.exception.UserAlreadyExistsException;
 import com.cgl.lets_play.model.User;
 import com.cgl.lets_play.repository.UserRepository;
 import com.cgl.lets_play.service.IUserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserService implements IUserService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -31,14 +33,20 @@ public class UserService implements IUserService {
 
     @Override
     public UserDto getUserById(String id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
         return convertToDto(user);
     }
 
     @Override
     public UserDto getCurrentUser() {
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        //UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        //User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        String email = getCurrentUserEmail();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         return convertToDto(user);
     }
 
@@ -61,21 +69,24 @@ public class UserService implements IUserService {
 
     @Override
     public UserDto updateUser(String id, UserDto userDto) {
-        User existingUser = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
-        if (!existingUser.getEmail().equals(userDto.getEmail()) && userRepository.existsByEmail(userDto.getEmail())) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        boolean isEmailChanged = userDto.getEmail() != null && !userDto.getEmail().equals(existingUser.getEmail());
+        if (isEmailChanged && userRepository.existsByEmail(userDto.getEmail())) {
             throw new UserAlreadyExistsException("User already exists");
         }
 
-        existingUser.setName(userDto.getName());
-        existingUser.setEmail(userDto.getEmail());
+        existingUser.setName(userDto.getName() == null ? existingUser.getName() : userDto.getName());
+        existingUser.setEmail(userDto.getEmail() == null ? existingUser.getEmail() : userDto.getEmail());
 
-        if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
+        /*if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
             existingUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
         }
 
         if (userDto.getPassword() == null) {
             existingUser.setPassword(existingUser.getPassword());
-        }
+        }*/
 
         if (userDto.getRole() != null) {
             existingUser.setRole(userDto.getRole());
@@ -92,6 +103,28 @@ public class UserService implements IUserService {
         }
 
         userRepository.deleteById(id);
+    }
+
+    public void changePassword(String id, String oldPassword, String newPassword) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new UnauthorizedException("Old password is incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    private String getCurrentUserEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()
+                && authentication.getPrincipal() instanceof UserDetails userDetails) {
+            return userDetails.getUsername();
+        } else {
+            throw new UnauthorizedException("User is not authenticated");
+        }
     }
 
     private UserDto convertToDto(User user) {
