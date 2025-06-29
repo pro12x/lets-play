@@ -1,10 +1,23 @@
-# Étape 1 : Build avec JDK
-FROM maven:3.8.6-jdk-17 AS build
+# Étape 1 : Build avec JDK 17 et Maven
+FROM eclipse-temurin:17-jdk-jammy AS build
+
+# Installer Maven manuellement
+RUN apt-get update && \
+    apt-get install -y wget && \
+    wget https://dlcdn.apache.org/maven/maven-3/3.8.6/binaries/apache-maven-3.8.6-bin.tar.gz  -O /tmp/maven.tar.gz && \
+    mkdir -p /opt/maven && \
+    tar -xzf /tmp/maven.tar.gz -C /opt/maven && \
+    ln -s /opt/maven/apache-maven-3.8.6 /opt/maven/maven && \
+    rm /tmp/maven.tar.gz
+
+ENV MAVEN_HOME=/opt/maven/maven
+ENV PATH=$MAVEN_HOME/bin:$PATH
+
 WORKDIR /app
 COPY . .
 RUN mvn clean package
 
-# Étape 2 : Exécution avec JRE léger
+# Étape 2 : Runtime avec JRE léger
 FROM eclipse-temurin:17-jre-focal
 
 # Créer un utilisateur non root pour la sécurité
