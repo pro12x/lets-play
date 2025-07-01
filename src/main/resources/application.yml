@@ -1,0 +1,37 @@
+spring:
+  config:
+    import: optional:file:./.env[.properties]
+  application:
+    name: ${APP_NAME}
+
+  data:
+    mongodb:
+      uri: ${DB_TYPE}://${DB_USER}:${DB_PASSWORD}@${DB_CLUSTER}.cpgpytn.mongodb.net/${DB_NAME}?retryWrites=true&w=majority
+      database: ${DB_NAME}
+      auto-index-creation: true
+
+server:
+  port: ${SERVER_PORT:1111}
+  ssl:
+    enabled: true
+    key-store: ${KEY_STORE_PATH}
+    key-store-password: ${KEY_STORE_PASSWORD}
+    key-store-type: ${KEY_STORE_TYPE:PKCS12}
+    key-alias: ${KEY_ALIAS}
+
+app:
+  security:
+    jwt:
+      secret: ${JWT_SECRET}
+      expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+
+rate-limit:
+  enabled: true
+  requests-per-second: 10
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
